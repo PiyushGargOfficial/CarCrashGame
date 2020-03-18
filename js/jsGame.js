@@ -46,12 +46,81 @@ function start() {
         //roadline
         let roadLine = document.createElement("div");
         roadLine.setAttribute('class', 'lines');
-        roadLine.style.top = (x * 150) + 'px';
+        roadLine.y = (x * 150);
+        roadLine.style.top = roadLine.y + 'px';
         gameArea.appendChild(roadLine);
 
     }
     player.x = car.offsetLeft;
     player.y = car.offsetTop;
+
+    for (var x = 0; x < 3; x++) {
+        //generate enemy cars
+        let enemyCar = document.createElement("div");
+        enemyCar.setAttribute('class', 'enemy');
+        enemyCar.y = ((x + 1) * 350) * -1;
+        enemyCar.style.top = enemyCar.y + 'px';
+        enemyCar.style.background = "blue";
+        //Math.random gives values between 0 and 1 
+        enemyCar.style.left = Math.floor(Math.random() * 350) + "px";
+        gameArea.appendChild(enemyCar);
+    }
+}
+
+
+
+function isCollide(a, b) {
+    //Position of player car
+    aRect = a.getBoundingClientRect();
+    //Position of enemy car
+    bRect = b.getBoundingClientRect();
+
+    return !((aRect.top > bRect.bottom) ||
+        (aRect.bottom < bRect.top) ||
+        (aRect.right < bRect.left) ||
+        (aRect.left > bRect.right))
+}
+
+function moveEnemy(car) {
+    let enemy = document.querySelectorAll(".enemy");
+
+    //ForEach loop for moving enemy
+    enemy.forEach(function (item) {
+
+        //check for collision
+        if (isCollide(car, item)) {
+            console.log("Hit");
+        }
+
+        //loops enemies to move down and again
+        if (item.y >= 750) {
+            //or item.y = -50
+            item.y = -300;
+            item.style.left = Math.floor(Math.random() * 350) + "px";
+        }
+
+        item.y += player.speed;
+        //they move down with a speed of 5px but this happens only once
+        item.style.top = item.y + 'px';
+    })
+}
+
+function moveLines() {
+    let lines = document.querySelectorAll(".lines");
+
+    //ForEach loop for moving lines
+    lines.forEach(function (item) {
+
+        //loops lines to move down and again
+        if (item.y >= 700) {
+            //or item.y = -50
+            item.y += -750
+        }
+
+        item.y += player.speed;
+        //they move down with a speed of 5px but this happens only once
+        item.style.top = item.y + 'px';
+    })
 }
 
 function gamePlay() {
@@ -59,6 +128,9 @@ function gamePlay() {
     let road = gameArea.getBoundingClientRect();
 
     if (player.start) {
+
+        moveLines();
+        moveEnemy(car);
 
         if (keys.ArrowUp && player.y > (road.top + 70)) {
             player.y -= player.speed
